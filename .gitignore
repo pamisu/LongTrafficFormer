@@ -1,6 +1,6 @@
 # Checkpoint directories
-checkpoints/
-checkpoint/
+checkpoints/*
+checkpoint/*
 *.ckpt
 *.pt
 *.pth
@@ -9,14 +9,14 @@ checkpoint/
 *.h5
 
 # Data directories
-data/
-datasets/
-dataset/
+data/*
+datasets/*
+dataset/*
 
 # Log directories
-logs/
-log/
-runs/
+logs/*
+log/*
+runs/*
 
 # Batch files
 *.bat
