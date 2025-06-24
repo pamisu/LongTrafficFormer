@@ -1,0 +1,3 @@
+## LongTrafficFormer
+It is a traffic classification model based on the LongFormer architecture, designed to handle flow-level long sequece input.
+more details is coming soon...
