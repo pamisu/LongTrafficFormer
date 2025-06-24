@@ -1,0 +1,46 @@
+# Checkpoint directories
+checkpoints/
+checkpoint/
+*.ckpt
+*.pt
+*.pth
+*.weights
+*.bin
+*.h5
+
+# Data directories
+data/
+datasets/
+dataset/
+
+# Log directories
+logs/
+log/
+runs/
+
+# Batch files
+*.bat
+
+# Python cache directories
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Common IDE directories
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Environment files
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.python-version
