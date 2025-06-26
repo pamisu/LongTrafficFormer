@@ -2,5 +2,6 @@ argparse
 numpy
 pandas
 datasets
-transformers
+transformers==4.30.2
 scikit-learn
+transformers[torch]

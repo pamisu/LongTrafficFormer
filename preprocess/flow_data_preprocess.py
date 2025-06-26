@@ -106,7 +106,7 @@ def build_flow_data(pcap_file, pnums, features):
                 packet_data += field + ": " + value +  ", "
             packet_data = packet_data[:-2]
             flow_data += '<pck>' + packet_data +  ' '
-        flow_data += ' <feature>' + feature
+        flow_data += '\\n<feature>' + feature
         build_data.append(flow_data)
         current_idx += n
 
