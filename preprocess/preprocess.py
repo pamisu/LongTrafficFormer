@@ -7,7 +7,6 @@ from pathlib import Path
 from scapy.all import rdpcap, wrpcap
 from flow_data_preprocess import build_flow_data
 from preprocess_utils import build_td_text_dataset, split_dataset
-from sesstion_feature import get_session_feature
 from tqdm import tqdm
 import warnings
 warnings.filterwarnings("ignore")
@@ -21,10 +20,50 @@ def get_args():
     args = parser.parse_args()
     return args
 
-def filter_flow(pcap_path):
+def get_session_feature(pcap, input):
+    # BitTorrent.pcap.TCP_1-1-0-12_49252_1-2-7-170_443.pcap
+    parts = pcap[0].name.split('.')
+    filename = parts[0]+'.'+parts[1]+'_Flow.csv'
+    feature_dir = os.path.join(input, 'feature', filename)
+    data = pd.read_csv(feature_dir, encoding='gbk')
+
+    features = []
+    exclude_columns = {'Flow ID', 'Src IP', 'Src Port', 'Dst IP', 'Dst Port', 'Protocol', 'Timestamp', 'Flow Duration', 'Label'}
+    
+    for p in pcap:
+        feature_str = ""
+        parts = p.name.split('.')
+        five_tuple = parts[2].split('_')
+        proto = '6' if five_tuple[0] == 'TCP' else '17'
+        sip = five_tuple[1].replace('-', '.')
+        sport = five_tuple[2]
+        dip = five_tuple[3].replace('-', '.')
+        dport = five_tuple[4]
+        flow_id = f"{sip}-{dip}-{sport}-{dport}-{proto}"
+        flow_id1 = f"{dip}-{sip}-{dport}-{sport}-{proto}"
+
+        matching_row = data[data['Flow ID'].isin([flow_id, flow_id1])]
+        
+        if not matching_row.empty:
+            row = matching_row.iloc[0]
+            feature_columns = [col for col in data.columns if col not in exclude_columns]
+            
+            feature_parts = []
+            for col in feature_columns:
+                value = row[col]
+                feature_parts.append(f"{col}: {value}")
+            
+            feature_str = ", ".join(feature_parts)
+        
+        features.append(feature_str)
+    
+    return features
+
+def filter_flow(pcap_path, input):
     packets = []
     pnum = []
-    feature = []
+    fp = []
+    features = []
     for p in pcap_path:
         size_kb = p.stat().st_size / 1024
         if size_kb < 2:
@@ -35,16 +74,16 @@ def filter_flow(pcap_path):
             for _, _ in pcap_reader:
                 packet_count += 1
                 if packet_count >= 3:
-                    feature_str = get_session_feature(str(p))
-                    feature.append(feature_str)
+                    fp.append(p)
                     packet = rdpcap(str(p), count=5)
                     pnum.append(len(packet))
                     packets.extend(packet)
                     break
-    
-    return packets, pnum, feature
+    if fp:
+        features = get_session_feature(fp, input)
+    return packets, pnum, features
 
-def process_pcap_dir(pcap_dir: str, workers: int, outputfile):
+def process_pcap_dir(pcap_dir: str, workers: int, outputfile, input):
     pcap_paths = list(Path(pcap_dir).glob('*.pcap'))
     pcap_paths = [pcap_paths[i::workers] for i in range(workers)]
     packets = []
@@ -52,13 +91,13 @@ def process_pcap_dir(pcap_dir: str, workers: int, outputfile):
     features = []
 
     with concurrent.futures.ProcessPoolExecutor(max_workers=workers) as executor:
-        future_to_path = {executor.submit(filter_flow, p): p for p in pcap_paths}
+        future_to_path = {executor.submit(filter_flow, p, input): p for p in pcap_paths}
         
         for future in concurrent.futures.as_completed(future_to_path):
-            filered_packets, pnum, feature = future.result()
+            filered_packets, pnum, session_features = future.result()
             packets.extend(filered_packets)
             pnums.extend(pnum)
-            features.extend(feature)
+            features.extend(session_features)
     if not packets:
         return []
     
@@ -108,7 +147,7 @@ def main():
     for subdir in subdirs:
         print(f"Processing directory: {subdir.name}")
         filtered_pcap_path = os.path.join(args.input, 'filtered', subdir.name + '.pcap')
-        build_data = process_pcap_dir(str(subdir), args.num_workers, filtered_pcap_path) 
+        build_data = process_pcap_dir(str(subdir), args.num_workers, filtered_pcap_path, args.input) 
         if not build_data:
             print(f"Total packets and flows after filtering: 0, 0")
             continue

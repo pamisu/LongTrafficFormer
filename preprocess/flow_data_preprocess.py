@@ -13,26 +13,21 @@ def build_flow_data(pcap_file, pnums, features):
     # fields selected by gemini 2.5 Pro
     fields = [
             # Frame-level information (useful for timing, length, and overall protocol stack)
-            "frame.time", "frame.time_delta", "frame.time_relative", "frame.len", "frame.protocols",
-            # Ethernet-level information (basic source/destination MAC and type)
-            "eth.dst", "eth.src", "eth.type",
+            "frame.time_delta", "frame.time_relative", "frame.len", "frame.protocols",
             # IP-level information (crucial for addressing, protocol, QoS, fragmentation flags, TTL)
             "ip.version", "ip.hdr_len", "ip.dsfield", "ip.dsfield.dscp", "ip.dsfield.ecn", "ip.len",
-            "ip.flags", "ip.flags.df", "ip.flags.mf", "ip.ttl", "ip.proto", "ip.src", "ip.dst",
-            # TCP-level information (ports, stream ID, segment length, header length, flags, window size, timing, analysis, payload)
-            "tcp.srcport", "tcp.dstport", "tcp.stream", "tcp.len", "tcp.hdr_len", "tcp.flags",
-            "tcp.flags.cwr", "tcp.flags.urg", "tcp.flags.ack", "tcp.flags.push",
+            "ip.flags", "ip.flags.df", "ip.flags.mf", "ip.ttl", "ip.proto",
+            # TCP-level information (ports, segment length, header length, flags, window size, timing, analysis, payload)
+            "tcp.srcport", "tcp.dstport", "tcp.len", "tcp.hdr_len", "tcp.flags",
+             "tcp.flags.cwr", "tcp.flags.urg", "tcp.flags.ack", "tcp.flags.push",
             "tcp.flags.reset", "tcp.flags.syn", "tcp.flags.fin", "tcp.flags.str",
             "tcp.window_size", "tcp.time_relative", "tcp.time_delta",
             "tcp.analysis.bytes_in_flight", "tcp.analysis.push_bytes_sent", "tcp.reassembled.length",
             # TLS-level information (very useful for encrypted traffic identification)
             "tls.record.content_type", "tls.record.version", "tls.record.length",
             "tcp.payload",
-            # UDP-level information (ports, length, stream ID)
-            "udp.srcport", "udp.dstport", "udp.length", "udp.stream",
-            # Data length (generic)
-            "data.len"
-        ]
+            # UDP-level information (ports, length)
+            "udp.srcport", "udp.dstport", "udp.length", "udp.time_relative", "udp.time_delta", "udp.payload"]
         
         # tshark 3.6.16
     # ...existing code...

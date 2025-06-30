@@ -46,10 +46,11 @@ def build_td_text_dataset(traffic_data, int_label=0, str_label='', task_name=Non
     """Building the text datasets of traffic detection task"""
     if task_name == "EMD":
         instruction = "Given the following traffic data <" + granularity + "> that contains protocol fields, " \
-                      "traffic features, and payloads. Please conduct the ENCRYPTED MALWARE DETECTION TASK to determine " \
+                      "traffic features, and payloads of the first five packets in a session and the session statistical features. "\
+                      "Please conduct the ENCRYPTED MALWARE DETECTION TASK to determine " \
                       "which application category the encrypted beign or malicious traffic belongs to. The categories " \
-                      "include 'BitTorrent, FTP, Facetime, Gmail, MySQL, Outlook, SMB, Skype, Weibo, WorldOfWarcraft," \
-                      "Cridex, Geodo, Htbot, Miuref, Neris, Nsis-ay, Shifu, Tinba, Virut, Zeus'."
+                      "include 'FTP, Gmail, SMB, Weibo, Cridex, Geodo, Htbot, Miuref, Neris, " \
+                      "Nsis-ay, Shifu, Tinba, Virut, Zeus'."
 
         str_output = str_label
         int_output = int_label
